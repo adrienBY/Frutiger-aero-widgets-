@@ -11,3 +11,11 @@ Every push to `main` builds the APK and publishes it under **Releases**.
 
 `design/` holds the source the clock images are rendered from
 (`python3 design/render.py "$PWD/design/orb.html" <out-dir>`).
+
+## Aero Icons (icon pack)
+Wraps every app's own icon in a glossy orb (sky, grass, leaf, globe or cloud,
+colors taken from the wallpaper) with a gloss highlight and a dew drop on top.
+It uses the launcher's fallback layers (`iconback` / `iconmask` / `iconupon`),
+so apps installed later are themed too. Works in Nova Launcher and other
+icon-pack launchers. Layers are rendered from `design/icons.html`
+(`python3 design/render_icons.py design/icons.html iconpack/src/main/res`).

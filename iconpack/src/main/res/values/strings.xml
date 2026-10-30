@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aero Icons</string>
+    <string name="apply_nova">Apply in Nova Launcher</string>
+    <string name="no_nova">Open your launcher\'s icon settings and choose Aero Icons.</string>
+</resources>

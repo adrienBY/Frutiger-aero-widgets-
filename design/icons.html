@@ -1,0 +1,47 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- Aero icon pack layers (200x200 CSS, rendered larger).
+     ?layer=back&c=<sky|grass|leaf|globe|cloud>  glossy orb backdrop
+     ?layer=mask                                  opaque outside the icon window (launchers cut DST_OUT)
+     ?layer=upon                                  gloss overlay drawn above the app icon
+     ?layer=sample&c=..                           backdrop + fake glyph + gloss, for previews -->
+<style>
+html,body{margin:0;background:transparent}
+#f{width:200px;height:200px;position:relative;overflow:hidden}
+.a{position:absolute}
+</style></head>
+<body><div id="f"></div>
+<script>
+const P=new URLSearchParams(location.search);
+const layer=P.get('layer'), c=P.get('c')||'sky';
+// Palettes pulled from the wallpaper: royal-blue sky, meadow grass, sunlit leaves, glass globe, clouds.
+const PAL={
+  sky:  ['#a9dcff','#3d86f7','#0d34cf','#061c86'],
+  grass:['#e6ffb8','#79d94a','#2f9a22','#145e17'],
+  leaf: ['#f8ffdc','#d4f07e','#93c93e','#4c8a1c'],
+  globe:['#ecfcff','#86dcff','#1f96e6','#0a4aa6'],
+  cloud:['#ffffff','#eef5fc','#bfd2ea','#7f9cc6'],
+};
+const f=document.getElementById('f');
+const orb='left:8px;top:8px;width:184px;height:184px;border-radius:50%';
+function back(col){
+  const [a,b,cc,d]=PAL[col];
+  return `<div class="a" style="${orb};background:radial-gradient(circle at 50% 28%, ${a} 0%, ${b} 34%, ${cc} 72%, ${d} 100%);box-shadow:inset 0 -14px 26px rgba(0,30,90,0.35), inset 0 4px 8px rgba(255,255,255,0.55), 0 0 0 2.5px rgba(255,255,255,0.55), 0 3px 6px rgba(0,25,80,0.35)"></div>`
+       + `<div class="a" style="left:46px;bottom:12px;width:108px;height:46px;border-radius:50%;background:radial-gradient(ellipse at 50% 100%, rgba(220,255,250,0.7) 0%, rgba(220,255,250,0) 70%)"></div>`;
+}
+function upon(){
+  return `<div class="a" style="left:30px;top:13px;width:140px;height:84px;border-radius:50%;background:linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.06) 100%)"></div>`
+       + `<div class="a" style="${orb};box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.45);"></div>`
+       // a little dew drop, like the leaves in the wallpaper
+       + `<div class="a" style="left:138px;top:108px;width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 34% 30%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.25) 32%, rgba(255,255,255,0) 60%), radial-gradient(circle at 60% 70%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.55) 90%);box-shadow:0 1px 2px rgba(0,30,90,0.25)"></div>`;
+}
+let h='';
+if(layer==='back') h=back(c);
+else if(layer==='upon') h=upon();
+else if(layer==='mask') h=`<div class="a" style="inset:0;background:radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 79px, #000 81px)"></div>`;
+else if(layer==='sample'){
+  h=back(c)+`<div class="a" style="left:62px;top:62px;width:76px;height:76px;border-radius:22px;background:#ffffff;opacity:0.92;box-shadow:0 2px 4px rgba(0,0,0,0.2)"></div>`
+   +`<div class="a" style="left:82px;top:82px;width:36px;height:36px;border-radius:50%;background:${PAL[c][2]}"></div>`+upon();
+}
+f.innerHTML=h;
+</script></body></html>

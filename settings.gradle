@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "AeroClock"
-include ':app'
+include ':app', ':iconpack'

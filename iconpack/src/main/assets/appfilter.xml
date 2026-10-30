@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <iconback img1="iconback_sky" img2="iconback_grass" img3="iconback_leaf" img4="iconback_globe" img5="iconback_cloud" />
+    <iconmask img1="iconmask" />
+    <iconupon img1="iconupon" />
+    <scale factor="0.62" />
+</resources>
