@@ -28,3 +28,13 @@ and night versions. Refreshes every 30 minutes; tap it to refresh with your curr
 position. Open **Aero Météo** once to allow location. Scenes come from
 `design/weather.html` (`python3 design/render_weather.py design/weather.html app/src/main/res`);
 the text is drawn on the phone in Selawik (OFL, `app/src/main/assets/fonts`).
+
+## Aero Launcher
+A Frutiger Aero home screen (set it in Settings → Apps → Default apps → Home):
+- every app as a glass orb, tinted from the wallpaper palette that matches its icon
+- a glass shelf dock with a Start orb in the middle; swipe up or tap it for the
+  frosted Start menu with search
+- your widgets (long-press empty space → *Ajouter un widget*), plus a built-in
+  draggable fidget spinner with haptic ticks
+- bubbles drifting up behind everything at 10 fps, Selawik labels
+- long-press anything to move or remove it; swipe down for notifications

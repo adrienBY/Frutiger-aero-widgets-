@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aero Launcher</string>
+    <string name="search_hint">Rechercher une application</string>
+    <string name="add_widget">Ajouter un widget</string>
+    <string name="add_spinner">Ajouter le hand spinner Aero</string>
+    <string name="wallpaper">Fond d\'écran</string>
+    <string name="home_settings">Choisir l\'écran d\'accueil</string>
+    <string name="move">Déplacer</string>
+    <string name="remove">Retirer</string>
+    <string name="add_home">Ajouter à l\'accueil</string>
+    <string name="add_dock">Ajouter au dock</string>
+    <string name="app_info">Infos sur l\'appli</string>
+    <string name="uninstall">Désinstaller</string>
+    <string name="tap_free_cell">Touchez une case libre</string>
+    <string name="cell_taken">Cette case est occupée</string>
+    <string name="no_room">Plus de place sur l\'écran d\'accueil</string>
+    <string name="dock_slot">Emplacement du dock</string>
+    <string name="dock_empty_hint">Appui long sur une appli du tiroir → Ajouter au dock</string>
+    <string name="start">Démarrer</string>
+    <string name="spinner">Hand spinner</string>
+    <string name="cant_open">Impossible d\'ouvrir l\'appli</string>
+</resources>

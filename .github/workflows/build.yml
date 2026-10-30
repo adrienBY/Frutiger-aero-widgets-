@@ -40,6 +40,7 @@ jobs:
         run: |
           cp app/build/outputs/apk/release/app-release.apk AeroClock-${{ github.run_number }}.apk
           cp iconpack/build/outputs/apk/release/iconpack-release.apk AeroIcons-${{ github.run_number }}.apk
+          cp launcher/build/outputs/apk/release/launcher-release.apk AeroLauncher-${{ github.run_number }}.apk
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
@@ -49,4 +50,5 @@ jobs:
           files: |
             AeroClock-${{ github.run_number }}.apk
             AeroIcons-${{ github.run_number }}.apk
+            AeroLauncher-${{ github.run_number }}.apk
           make_latest: true
