@@ -175,8 +175,7 @@ final class WeatherUpdater {
         for (int id : ids) {
             RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.widget_weather);
             if (bgId != 0) v.setImageViewResource(R.id.weather_bg, bgId);
-            v.setViewVisibility(R.id.bubbles_day, bubbles && day ? View.VISIBLE : View.GONE);
-            v.setViewVisibility(R.id.bubbles_night, bubbles && !day ? View.VISIBLE : View.GONE);
+            v.setViewVisibility(R.id.bubbles, bubbles ? View.VISIBLE : View.GONE);
             v.setImageViewBitmap(R.id.weather_image, bmp);
             v.setOnClickPendingIntent(R.id.weather_root, pi);
             mgr.updateAppWidget(id, v);

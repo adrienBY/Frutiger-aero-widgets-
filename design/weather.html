@@ -142,7 +142,7 @@ function leaves(){
 
 // ---------- scenes ----------
 let h='';
-if(layer!=='gloss'){
+if(layer!=='gloss' && layer!=='bubbles'){
   glass();
   const showSwoosh = !['rain','storm','drizzle'].includes(cond);
   if(showSwoosh) h+=swooshes(night?0.35:(cond==='fog'||cond==='cloudy'?0.6:1));
@@ -177,7 +177,7 @@ if(layer!=='gloss'){
   h+=hill();
   h+=leaves();
 
-  // surface details (on the phone the bubbles are animated: res/drawable/wx_bubbles_*.xml,
+  // surface details (on the phone the bubbles are the animated 'bubbles' layer below,
   // so the bg layer leaves them out; previews still show them)
   if(layer==='all' && ['clear','partly','cloudy'].includes(cond)){
     const a=night?0.55:1;
@@ -200,9 +200,28 @@ if(layer==='all'){
   h+=el(`left:36px;top:168px;font-size:24px;font-weight:400;line-height:1.2;color:${navy?'#0a3c8c':'#d6e8ff'};text-shadow:${navy?'0 0 8px rgba(255,255,255,0.85)':'0 1px 4px rgba(0,10,60,0.6)'}`,'Ensoleillé');
   h+=el(`left:36px;bottom:30px;font-size:26px;font-weight:700;line-height:1.2;color:#ffffff;text-shadow:0 2px 6px rgba(10,60,15,0.75)`,'Petit-Montrouge');
 }
-if(layer!=='bg'){
+if(layer!=='bg' && layer!=='bubbles'){
   const a=dark?0.4:0.72;
   h+=el(`left:14px;right:14px;top:8px;height:160px;border-radius:80px 80px 50% 50% / 80px 80px 60px 60px;background:linear-gradient(180deg, rgba(255,255,255,${a}) 0%, rgba(255,255,255,${dark?0.03:0.05}) 100%)`);
+}
+// Rising bubbles, same method as the Aqua Orb clock (design/orb.html): each loops
+// seamlessly in N frames (big ones once per loop, small ones twice). ?layer=bubbles&f=<frame>&n=<frames>
+if(layer==='bubbles'){
+  const F=+(P.get('f')??0), N=+(P.get('n')??30), t=F/N;
+  // [x center, size, speed (1|2 trips per loop), phase, wobble px] in tile units, right of the text
+  const B=[[214,28,1,0.00,5],[244,16,2,0.10,3],[196,12,2,0.55,3],[268,22,1,0.35,4],[292,14,2,0.80,3],
+           [232,24,1,0.62,5],[284,30,1,0.18,6],[208,10,2,0.40,2],[256,12,2,0.92,2]];
+  const y0=262, y1=140;
+  for(const [x,sz,k,ph,w] of B){
+    const p=((t*k+ph)%1+1)%1;               // 0..1 along the trip
+    const y=y0-(y0-y1)*p;
+    const xx=x+w*Math.sin(p*Math.PI*2*(k===1?2:1));
+    const fade=Math.min(1,p/0.18)*Math.min(1,(1-p)/0.35);
+    const bw=sz>=16?1.5:1;
+    let bg=`radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) ${sz>=30?36:40}%)`;
+    if(sz>=20) bg+=', radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 58%, rgba(200,255,250,0.4) 100%)';
+    h+=`<div class="a" style="left:${xx-sz/2}px;top:${y-sz/2}px;width:${sz}px;height:${sz}px;border-radius:50%;opacity:${fade.toFixed(3)};border:${bw}px solid rgba(255,255,255,0.72);background:${bg}"></div>`;
+  }
 }
 tile.innerHTML=h;
 </script></body></html>

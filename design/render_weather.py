@@ -18,6 +18,10 @@ jobs = [(f'{draw}/wx_{c}_{"n" if n else "d"}.png', f'cond={c}&night={n}&layer=bg
 jobs += [(f'{draw}/wx_gloss_bright.png', 'cond=clear&night=0&layer=gloss', PX),
          (f'{draw}/wx_gloss_dim.png', 'cond=clear&night=1&layer=gloss', PX),
          (f'{draw}/wx_preview.png', 'cond=clear&night=0&layer=all', 512)]
+# Bubble frames for the widget's ViewFlipper (10 fps, 3 s loop), like the clock's.
+BUBBLE_FRAMES = 30
+jobs += [(f'{draw}/wx_bub_{i:02d}.png', f'layer=bubbles&f={i}&n={BUBBLE_FRAMES}', 400)
+         for i in range(BUBBLE_FRAMES)]
 
 with sync_playwright() as p:
     b = p.chromium.launch()

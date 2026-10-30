@@ -27,4 +27,4 @@ weather type (clear, partly cloudy, cloudy, fog, drizzle, rain, snow, storm) in 
 and night versions. Refreshes every 30 minutes; tap it to refresh with your current
 position. Open **Aero Météo** once to allow location. Scenes come from
 `design/weather.html` (`python3 design/render_weather.py design/weather.html app/src/main/res`);
-bubbles are animated vectors from `design/make_bubbles.py`; the text is drawn on the phone in Selawik (OFL, `app/src/main/assets/fonts`).
+the text is drawn on the phone in Selawik (OFL, `app/src/main/assets/fonts`).
