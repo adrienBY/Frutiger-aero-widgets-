@@ -19,3 +19,12 @@ It uses the launcher's fallback layers (`iconback` / `iconmask` / `iconupon`),
 so apps installed later are themed too. Works in Nova Launcher and other
 icon-pack launchers. Layers are rendered from `design/icons.html`
 (`python3 design/render_icons.py design/icons.html iconpack/src/main/res`).
+
+## Aero Météo (2×2)
+Current weather in the Aero Blue glass tile: live temperature and conditions from
+[Open-Meteo](https://open-meteo.com), your neighborhood name, and a scene for each
+weather type (clear, partly cloudy, cloudy, fog, drizzle, rain, snow, storm) in day
+and night versions. Refreshes every 30 minutes; tap it to refresh with your current
+position. Open **Aero Météo** once to allow location. Scenes come from
+`design/weather.html` (`python3 design/render_weather.py design/weather.html app/src/main/res`);
+the text is drawn on the phone in Selawik (OFL, `app/src/main/assets/fonts`).

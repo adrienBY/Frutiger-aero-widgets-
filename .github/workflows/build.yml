@@ -26,8 +26,14 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Build release APK
-        run: gradle assembleRelease --no-daemon --stacktrace
+      - name: Build release APKs
+        run: |
+          set -o pipefail
+          gradle assembleRelease --no-daemon 2>&1 | tee build.log
+
+      - name: Report build errors
+        if: failure()
+        run: grep -E "error:|e: |What went wrong|AAPT|warning: \[" -A2 build.log | head -40 | while IFS= read -r l; do echo "::error::$l"; done
 
       - name: Rename APKs
         run: |

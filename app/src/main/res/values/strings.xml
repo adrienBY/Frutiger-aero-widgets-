@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Aero Clock</string>
+    <string name="app_name">Aero Widgets</string>
     <string name="widget_name">Aqua Orb</string>
     <string name="widget_desc">Glossy Frutiger Aero analog clock</string>
+
+    <string name="weather_name">Aero Météo</string>
+    <string name="weather_desc">Météo actuelle en style Frutiger Aero</string>
+    <string name="weather_use_location">Utiliser ma position</string>
+    <string name="weather_background">Position automatique (toujours autoriser)</string>
+    <string name="weather_hint">Touchez le widget à tout moment pour actualiser. Pour suivre vos déplacements sans toucher le widget, autorisez la position « Toujours ».</string>
+    <string name="weather_need_location">Autorisez la position pour afficher la météo locale.</string>
+    <string name="weather_loading">Chargement de la météo…</string>
+    <string name="weather_updated">Mis à jour à</string>
+    <string name="weather_auto_on">Position automatique activée</string>
+    <string name="weather_refreshing">Actualisation de la météo…</string>
 </resources>

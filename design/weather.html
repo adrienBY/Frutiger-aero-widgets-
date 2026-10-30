@@ -1,0 +1,207 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- Aero Weather scenes. Frame 380x380, tile 360x360 at (10,10), radius 88.
+     ?cond=clear|partly|cloudy|fog|drizzle|rain|snow|storm &night=0|1
+     &layer=bg (everything under the text) | gloss (highlight above the text) | all (+ sample text, for previews)
+     Text is drawn on the phone (AeroWeatherRenderer.java) at the same coordinates. -->
+<style>
+@font-face{font-family:Selawik;src:url(../app/src/main/assets/fonts/Selawik-Light.ttf);font-weight:300}
+@font-face{font-family:Selawik;src:url(../app/src/main/assets/fonts/Selawik-Regular.ttf);font-weight:400}
+@font-face{font-family:Selawik;src:url(../app/src/main/assets/fonts/Selawik-Bold.ttf);font-weight:700}
+html,body{margin:0;background:transparent}
+#f{width:380px;height:380px;position:relative;font-family:Selawik,sans-serif}
+.a{position:absolute}
+#tile{left:10px;top:10px;width:360px;height:360px;border-radius:88px;overflow:hidden}
+</style></head>
+<body><div id="f"><div class="a" id="tile"></div></div>
+<script>
+const P=new URLSearchParams(location.search);
+const cond=P.get('cond')||'clear', night=P.get('night')==='1', layer=P.get('layer')||'all';
+const tile=document.getElementById('tile');
+const el=(style,inner='')=>`<div class="a" style="${style}">${inner}</div>`;
+
+// ---------- glass palettes ----------
+const GLASS={
+  clear:['#effcff','#9fe2ff','#2a98e6','#0b4aa8'],
+  partly:['#effcff','#a6e0ff','#3496e2','#0d4aa4'],
+  cloudy:['#f4f8fc','#c9dbee','#7398c6','#35548c'],
+  fog:['#ffffff','#e2ebf3','#a5bad1','#62799a'],
+  drizzle:['#e2f0fb','#9cc0e2','#4a74ad','#203d72'],
+  rain:['#cfe1f4','#7fa0cb','#3b5d96','#1b3262'],
+  snow:['#ffffff','#e4f4ff','#9ccbef','#4c84c4'],
+  storm:['#b0b8da','#5e6898','#2f3567','#13163a'],
+};
+const NIGHT={
+  clear:['#6f9bff','#2b57d8','#12268a','#060f48'],
+  partly:['#6a93f2','#2a52cc','#13267f','#071043'],
+  cloudy:['#7084b8','#34477f','#18244f','#0a1030'],
+  fog:['#8496c0','#435687','#202d58','#0e1535'],
+  drizzle:['#5f77ad','#2a3d75','#141f49','#080d2c'],
+  rain:['#56699c','#26376b','#121c44','#070b28'],
+  snow:['#8aa8e8','#3d5fc0','#1b2f80','#0a1446'],
+  storm:['#4e4f86','#26265a','#13123a','#08071f'],
+};
+const g=(night?NIGHT:GLASS)[cond];
+const dark= night || cond==='rain' || cond==='storm' || cond==='drizzle';
+
+function glass(){
+  tile.style.background=`radial-gradient(circle at 30% 18%, ${g[0]} 0%, ${g[1]} 32%, ${g[2]} 70%, ${g[3]} 100%)`;
+  tile.style.boxShadow=`inset 0 -24px 44px rgba(0,${dark?10:40},${dark?60:130},0.55), inset 0 6px 14px rgba(255,255,255,${dark?0.35:0.6})`;
+}
+
+// ---------- reusable assets ----------
+function bubble(x,y,s,a=1){
+  const bw=s>=16?1.5:1, rim=s>=20;
+  let bg=`radial-gradient(circle at 32% 28%, rgba(255,255,255,${0.95*a}) 0%, rgba(255,255,255,0) ${s>=28?38:40}%)`;
+  if(rim) bg+=`, radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 58%, rgba(200,255,250,${0.4*a}) 100%)`;
+  return el(`left:${x}px;top:${y}px;width:${s}px;height:${s}px;border-radius:50%;border:${bw}px solid rgba(255,255,255,${0.72*a});background:${bg}`);
+}
+function swooshes(a){
+  return el(`left:-120px;top:150px;width:600px;height:220px;border-radius:50%;border-top:3px solid rgba(255,255,255,${0.75*a});transform:rotate(-14deg);box-shadow:0 -4px 14px -6px rgba(255,255,255,${0.8*a})`)
+       + el(`left:-90px;top:176px;width:560px;height:220px;border-radius:50%;border-top:1.5px solid rgba(220,255,250,${0.6*a});transform:rotate(-10deg)`)
+       + el(`left:-40px;top:196px;width:480px;height:90px;border-radius:50%;background:radial-gradient(ellipse at 50% 40%, rgba(190,255,250,${0.35*a}) 0%, rgba(190,255,250,0) 70%);transform:rotate(-12deg)`);
+}
+function sun(cx,cy,r,flare=true){
+  let h=el(`left:${cx-r*2.4}px;top:${cy-r*2.4}px;width:${r*4.8}px;height:${r*4.8}px;border-radius:50%;background:radial-gradient(circle, rgba(255,250,215,0.9) 0%, rgba(255,240,160,0.5) 26%, rgba(255,240,160,0) 62%)`);
+  if(flare){
+    h+=el(`left:${cx-r*1.8}px;top:${cy-1.5}px;width:${r*3.6}px;height:3px;background:linear-gradient(90deg, rgba(255,255,255,0), #ffffff, rgba(255,255,255,0))`);
+    h+=el(`left:${cx-1.5}px;top:${cy-r*1.8}px;width:3px;height:${r*3.6}px;background:linear-gradient(180deg, rgba(255,255,255,0), #ffffff, rgba(255,255,255,0))`);
+  }
+  h+=el(`left:${cx-r}px;top:${cy-r}px;width:${r*2}px;height:${r*2}px;border-radius:50%;background:radial-gradient(circle at 50% 35%, #fffef0 0%, #ffe94f 38%, #ffb31a 80%, #ff8a00 100%);box-shadow:0 0 ${r*0.63}px rgba(255,220,80,0.95), inset 0 -${r*0.17}px ${r*0.29}px rgba(230,110,0,0.4)`);
+  return h;
+}
+function flareRings(){
+  return el(`left:218px;top:140px;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,0.35) 40%, rgba(255,255,255,0) 72%)`)
+       + el(`left:178px;top:176px;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle, rgba(200,255,250,0) 45%, rgba(200,255,250,0.35) 68%, rgba(200,255,250,0) 100%)`);
+}
+function moon(cx,cy,r){
+  return el(`left:${cx-r*2.1}px;top:${cy-r*2.1}px;width:${r*4.2}px;height:${r*4.2}px;border-radius:50%;background:radial-gradient(circle, rgba(190,215,255,0.55) 0%, rgba(190,215,255,0) 62%)`)
+   + el(`left:${cx-r}px;top:${cy-r}px;width:${r*2}px;height:${r*2}px;border-radius:50%;background:radial-gradient(circle at 45% 35%, #ffffff 0%, #e8eef8 35%, #b8c6dc 75%, #8a9ab8 100%);box-shadow:0 0 ${r*0.55}px rgba(190,215,255,0.8), inset -${r*0.18}px -${r*0.18}px ${r*0.3}px rgba(60,80,130,0.35)`,
+       el(`left:${r*0.48}px;top:${r*0.98}px;width:${r*0.36}px;height:${r*0.36}px;border-radius:50%;background:rgba(140,155,185,0.45)`)
+      +el(`left:${r*1.15}px;top:${r*0.53}px;width:${r*0.25}px;height:${r*0.25}px;border-radius:50%;background:rgba(140,155,185,0.4)`)
+      +el(`left:${r*1.2}px;top:${r*1.29}px;width:${r*0.18}px;height:${r*0.18}px;border-radius:50%;background:rgba(140,155,185,0.35)`));
+}
+function stars(){
+  const S=[[196,30,3],[172,132,2],[318,160,3],[240,172,2],[330,26,2],[150,96,2],[286,198,2]];
+  return S.map(([x,y,s])=>el(`left:${x}px;top:${y}px;width:${s}px;height:${s}px;border-radius:50%;background:#ffffff;box-shadow:0 0 ${s+1}px #ffffff`)).join('');
+}
+// glossy cloud; tone: 'white' | 'grey' | 'dark'
+function cloud(x,y,w,tone='white'){
+  const T={white:['#ffffff','#e6f0fa','#b9cde4'],grey:['#f2f5f9','#c8d3e0','#8c9bb2'],dark:['#a6adc4','#6b7290','#3d4260'],nightwhite:['#dfe6f5','#a9b6d2','#6e7da0'],nightdark:['#7c84a6','#4a5174','#262b48']}[tone];
+  const h=w*0.56, s=w/150;
+  const body=`background:linear-gradient(180deg, ${T[0]} 0%, ${T[1]} 55%, ${T[2]} 100%)`;
+  return el(`left:${x}px;top:${y}px;width:${w}px;height:${h}px;filter:drop-shadow(0 ${4*s}px ${6*s}px rgba(0,25,80,0.35))`,
+      el(`left:0;bottom:0;width:${w}px;height:${46*s}px;border-radius:${23*s}px;${body}`)
+     +el(`left:${22*s}px;bottom:${18*s}px;width:${62*s}px;height:${62*s}px;border-radius:50%;${body}`)
+     +el(`left:${62*s}px;bottom:${14*s}px;width:${72*s}px;height:${72*s}px;border-radius:50%;${body}`)
+     +el(`left:${30*s}px;top:${6*s}px;width:${84*s}px;height:${30*s}px;border-radius:50%;background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0))`));
+}
+function raindrop(x,y,s,a=1){
+  return el(`left:${x}px;top:${y}px;width:${s}px;height:${s}px;border-radius:0 50% 50% 50%;transform:rotate(45deg);opacity:${a};background:radial-gradient(circle at 60% 60%, #e9fbff 0%, #7fd0ff 35%, #1f86e0 85%);box-shadow:0 1px 3px rgba(0,30,90,0.4)`);
+}
+function glassDrop(x,y,s){ // water drop resting on the glass
+  return el(`left:${x}px;top:${y}px;width:${s}px;height:${s*1.1}px;border-radius:50% 50% 50% 50% / 45% 45% 55% 55%;background:radial-gradient(circle at 34% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.25) 22%, rgba(255,255,255,0) 45%), radial-gradient(circle at 55% 75%, rgba(255,255,255,0) 45%, rgba(220,240,255,0.55) 80%, rgba(255,255,255,0) 100%);box-shadow:0 ${s*0.1}px ${s*0.15}px rgba(0,20,60,0.35), inset 0 -${s*0.08}px ${s*0.12}px rgba(0,30,80,0.3)`);
+}
+function flake(cx,cy,r,a=1){
+  let h='';
+  for(const d of [0,60,120]) h+=el(`left:${cx-r}px;top:${cy-1}px;width:${r*2}px;height:2px;border-radius:1px;background:rgba(255,255,255,${a});transform:rotate(${d}deg);box-shadow:0 0 4px rgba(255,255,255,${0.8*a})`);
+  return h;
+}
+function bolt(x,y,s){
+  return el(`left:${x}px;top:${y}px;width:${40*s}px;height:${70*s}px;filter:drop-shadow(0 0 ${8*s}px rgba(255,230,90,0.95))`,
+    el(`inset:0;clip-path:polygon(55% 0,10% 55%,42% 55%,25% 100%,90% 38%,56% 38%,78% 0);background:linear-gradient(180deg,#fffbe0 0%,#ffe24d 45%,#ffb31a 100%)`));
+}
+function mist(){
+  return [150,196,236].map((y,i)=>el(`left:-40px;top:${y}px;width:440px;height:${30+i*6}px;border-radius:50%;background:radial-gradient(ellipse, rgba(255,255,255,${night?0.3:0.6}) 0%, rgba(255,255,255,0) 70%)`)).join('');
+}
+function hill(){
+  let G;
+  if(cond==='snow') G=night?['#e8f0ff','#aebfe6','#6f82b8','#38487a']:['#ffffff','#eef6ff','#bfd8f0','#86a9d4'];
+  else if(night) G=['#5c9a5c','#2f7040','#17482a','#0a2716'];
+  else if(cond==='storm') G=['#7cae5a','#3f7d30','#24561f','#123014'];
+  else if(cond==='rain'||cond==='drizzle') G=['#a6ea6a','#55bd34','#22852a','#0f4f19'];
+  else if(cond==='cloudy'||cond==='fog') G=['#c6ef8c','#73c84a','#33942c','#17601c'];
+  else G=['#d4ff8a','#7fdb3e','#34a326','#17661a'];
+  return el(`left:-70px;right:-70px;top:272px;height:200px;border-radius:50%;background:radial-gradient(ellipse at 40% 12%, ${G[0]} 0%, ${G[1]} 28%, ${G[2]} 62%, ${G[3]} 100%);box-shadow:inset 0 5px 8px rgba(255,255,255,${night?0.25:0.55})`)
+       + el(`left:30px;top:282px;width:200px;height:20px;border-radius:50%;background:radial-gradient(ellipse, rgba(255,255,255,${night?0.25:0.55}) 0%, rgba(255,255,255,0) 70%)`);
+}
+function leaves(){
+  const frost=cond==='snow';
+  const L=frost?[['#ffffff','#dff3d0','#9ccf86'],['#ffffff','#e6f6d8','#a6d68e'],['#f6fff0','#d2eec0','#8cc278']]
+               :[['#f2ffc4','#b6ea5c','#5fb32a'],['#f6ffd2','#c4ef6c','#69bd30'],['#eaffb4','#a8e350','#4f9f24']];
+  const f=night?'filter:brightness(0.55) saturate(0.85);':(cond==='storm'?'filter:brightness(0.8);':'');
+  const leaf=(l,t,w,h,rot,c,vein)=>el(`left:${l}px;top:${t}px;width:${w}px;height:${h}px;border-radius:80% 0 80% 0 / 100% 0 100% 0;background:linear-gradient(135deg, ${c[0]} 0%, ${c[1]} 40%, ${c[2]} 100%);box-shadow:inset 0 -3px 6px rgba(40,110,20,0.35), 0 2px 4px rgba(0,40,20,0.3);transform:rotate(${rot}deg)`,
+      vein?el(`left:${w*0.1}px;top:${h/2-1}px;width:${w*0.82}px;height:1.5px;background:rgba(70,140,30,0.6)`):'');
+  const dew=(l,t,s)=>el(`left:${l}px;top:${t}px;width:${s}px;height:${s}px;border-radius:50%;background:radial-gradient(circle at 34% 30%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0) 58%), radial-gradient(circle at 60% 70%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.6) 90%);box-shadow:0 1px 2px rgba(0,50,20,0.35)`);
+  return el(`right:-6px;top:214px;width:140px;height:120px;${f}`,
+      el(`left:70px;top:50px;width:100px;height:3px;border-radius:2px;background:${frost?'#7fa070':'#3f8a1f'};transform:rotate(-30deg);transform-origin:left center`)
+     +leaf(10,58,76,40,-16,L[0],1)+leaf(56,8,66,36,-58,L[1],1)+leaf(78,70,58,32,8,L[2],0)
+     +(frost?el(`left:16px;top:56px;width:60px;height:10px;border-radius:50%;background:rgba(255,255,255,0.85);transform:rotate(-16deg)`):'')
+     +dew(34,66,13)+dew(84,22,9)+((cond==='rain'||cond==='drizzle')?dew(104,80,11)+dew(20,84,8):''));
+}
+
+// ---------- scenes ----------
+let h='';
+if(layer!=='gloss'){
+  glass();
+  const showSwoosh = !['rain','storm','drizzle'].includes(cond);
+  if(showSwoosh) h+=swooshes(night?0.35:(cond==='fog'||cond==='cloudy'?0.6:1));
+  if(night && ['clear','partly','snow'].includes(cond)) h+=stars();
+
+  // sky icon, centred around (269,89) in tile coordinates, the T5 sun spot
+  switch(cond){
+    case 'clear':
+      h+= night? moon(269,89,45) : sun(269,89,35)+flareRings(); break;
+    case 'partly':
+      h+= night? moon(282,74,34) : sun(282,72,28);
+      h+= cloud(200,92,128, night?'nightwhite':'white'); break;
+    case 'cloudy':
+      h+= cloud(236,36,104, night?'nightdark':'grey') + cloud(194,84,140, night?'nightwhite':'white'); break;
+    case 'fog':
+      h+= cloud(204,56,140, night?'nightwhite':'grey') + mist(); break;
+    case 'drizzle':
+      h+= cloud(198,48,144, night?'nightdark':'grey');
+      for(const [x,y,s] of [[226,150,9],[262,164,8],[298,148,9],[244,190,7]]) h+=raindrop(x,y,s,0.9); break;
+    case 'rain':
+      h+= cloud(198,40,150, night?'nightdark':'grey');
+      for(const [x,y,s] of [[214,148,12],[250,170,13],[288,150,12],[322,172,11],[232,204,11],[270,214,10],[306,206,12]]) h+=raindrop(x,y,s);
+      break;
+    case 'snow':
+      h+= cloud(198,44,148, night?'nightwhite':'white');
+      for(const [x,y,r] of [[230,166,9],[272,190,11],[312,164,8],[250,222,7],[300,230,9]]) h+=flake(x,y,r); break;
+    case 'storm':
+      h+= cloud(196,36,154, 'dark') + bolt(246,112,1.25);
+      for(const [x,y,s] of [[214,156,11],[306,160,12],[226,206,10],[322,212,11]]) h+=raindrop(x,y,s,0.9); break;
+  }
+
+  h+=hill();
+  h+=leaves();
+
+  // surface details
+  if(['clear','partly','cloudy'].includes(cond)){
+    const a=night?0.55:1;
+    h+=bubble(214,198,28,a)+bubble(256,226,16,a)+bubble(190,240,12,a)+bubble(286,186,10,a);
+  }
+  if(cond==='rain'||cond==='drizzle'||cond==='storm'){
+    const D=cond==='drizzle'?[[150,214,10],[196,250,8],[58,232,7]]:[[150,214,13],[196,250,10],[58,232,9],[118,262,8],[176,120,9],[30,128,7]];
+    for(const [x,y,s] of D) h+=glassDrop(x,y,s);
+  }
+  if(cond==='snow') for(const [x,y,r] of [[60,232,6],[140,258,5],[196,224,6],[110,214,4]]) h+=flake(x,y,r,0.85);
+
+  // bezel ring sits on the frame, outside the tile clip
+  document.getElementById('f').insertAdjacentHTML('afterbegin',
+    `<div class="a" style="left:10px;top:10px;width:360px;height:360px;border-radius:88px;box-shadow:0 0 0 6px rgba(255,255,255,${dark?0.18:0.28}), 0 0 0 7px rgba(${dark?'200,225,255,0.5':'255,255,255,0.6'}), 0 3px 6px rgba(0,25,90,0.35)"></div>`);
+}
+if(layer==='all'){
+  const navy=!dark, col=navy?'#0a3c8c':'#ffffff';
+  const glow=navy?'0 0 12px rgba(255,255,255,0.85), 0 1px 0 rgba(255,255,255,0.9)':'0 0 16px rgba(150,200,255,0.6), 0 2px 6px rgba(0,10,60,0.6)';
+  h+=el(`left:32px;top:40px;font-size:118px;font-weight:300;line-height:1;letter-spacing:-3px;color:${col};text-shadow:${glow}`,'16°');
+  h+=el(`left:36px;top:168px;font-size:24px;font-weight:400;line-height:1.2;color:${navy?'#0a3c8c':'#d6e8ff'};text-shadow:${navy?'0 0 8px rgba(255,255,255,0.85)':'0 1px 4px rgba(0,10,60,0.6)'}`,'Ensoleillé');
+  h+=el(`left:36px;bottom:30px;font-size:26px;font-weight:700;line-height:1.2;color:#ffffff;text-shadow:0 2px 6px rgba(10,60,15,0.75)`,'Petit-Montrouge');
+}
+if(layer!=='bg'){
+  const a=dark?0.4:0.72;
+  h+=el(`left:14px;right:14px;top:8px;height:160px;border-radius:80px 80px 50% 50% / 80px 80px 60px 60px;background:linear-gradient(180deg, rgba(255,255,255,${a}) 0%, rgba(255,255,255,${dark?0.03:0.05}) 100%)`);
+}
+tile.innerHTML=h;
+</script></body></html>
