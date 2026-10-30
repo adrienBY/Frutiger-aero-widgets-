@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:contentDescription="@string/widget_name">
+
+    <AnalogClock
+        android:id="@+id/clock"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:dial="@drawable/dial"
+        android:hand_hour="@drawable/hand_hour"
+        android:hand_minute="@drawable/hand_minute"
+        android:hand_second="@drawable/hand_second" />
+
+    <!-- Hub and glass highlight, drawn above the hands. centerInside scales
+         exactly like AnalogClock, so the two layers stay aligned. -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:importantForAccessibility="no"
+        android:scaleType="centerInside"
+        android:src="@drawable/overlay" />
+
+</FrameLayout>

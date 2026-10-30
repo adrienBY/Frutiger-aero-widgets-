@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+html,body{margin:0;background:transparent}
+#f{width:440px;height:440px;position:relative}
+.a{position:absolute}
+.orb{left:40px;top:40px;width:360px;height:360px;border-radius:50%}
+.bub{position:absolute;border-radius:50%}
+</style></head>
+<body>
+<div id="f"><div class="a orb" id="orb"></div></div>
+<script>
+const P=new URLSearchParams(location.search);
+const layer=P.get('layer')||'all';
+const H=+(P.get('h')??0), M=+(P.get('m')??0), S=+(P.get('s')??0);
+const accent='#2ee6a8';
+const orb=document.getElementById('orb');
+const show=(n)=>layer==='all'||layer===n;
+let html='';
+if(show('dial')){
+  orb.style.background='radial-gradient(circle at 50% 30%, #effcff 0%, #9fe2ff 30%, #2a98e6 66%, #0b4aa8 100%)';
+  orb.style.boxShadow='inset 0 -24px 44px rgba(0,40,130,0.55), inset 0 6px 14px rgba(255,255,255,0.6), 0 0 0 6px rgba(255,255,255,0.28), 0 0 0 7px rgba(255,255,255,0.6), 0 10px 22px rgba(0,25,90,0.45)';
+  html+='<div class="a" style="left:70px;bottom:18px;width:220px;height:90px;border-radius:50%;background:radial-gradient(ellipse at 50% 100%, rgba(190,255,250,0.75) 0%, rgba(190,255,250,0) 70%)"></div>';
+  for(let i=0;i<60;i++){
+    const maj=i%5===0;
+    html+=`<div class="a" style="inset:0;transform:rotate(${i*6}deg)">`+(maj
+      ?'<div class="a" style="left:50%;top:16px;width:7px;height:24px;margin-left:-3.5px;border-radius:4px;background:linear-gradient(180deg,#ffffff,#d8f3ff);box-shadow:0 1px 3px rgba(0,40,120,0.45)"></div>'
+      :'<div class="a" style="left:50%;top:18px;width:2px;height:9px;margin-left:-1px;border-radius:1px;background:rgba(255,255,255,0.85)"></div>')+'</div>';
+  }
+  const bubbles=[[96,214,30,1],[132,262,18,0],[78,268,14,0],[160,296,22,1],[200,290,14,0],[220,226,24,1],[236,262,34,1],[286,214,16,0],[62,190,12,0]];
+  for(const [l,t,s,rim] of bubbles){
+    const bw=s>=16?1.5:1;
+    let bg=`radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) ${s>=30?36:40}%)`;
+    if(rim) bg+=', radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 58%, rgba(200,255,250,0.4) 100%)';
+    html+=`<div class="bub" style="left:${l}px;top:${t}px;width:${s}px;height:${s}px;border:${bw}px solid rgba(255,255,255,0.72);background:${bg}"></div>`;
+  }
+}
+const hand=(deg,inner)=>`<div class="a" style="inset:0;transform:rotate(${deg}deg)">${inner}</div>`;
+if(show('hour')) html+=hand(H,'<div class="a" style="left:50%;bottom:50%;width:12px;height:100px;margin-left:-6px;margin-bottom:-14px;border-radius:6px;background:linear-gradient(90deg,#0a3c8c,#154fae 50%,#0a3c8c);box-shadow:0 3px 6px rgba(0,25,80,0.45)"></div>');
+if(show('min')) html+=hand(M,'<div class="a" style="left:50%;bottom:50%;width:9px;height:148px;margin-left:-4.5px;margin-bottom:-14px;border-radius:5px;background:linear-gradient(90deg,#0a3c8c,#1a5cc4 50%,#0a3c8c);box-shadow:0 3px 7px rgba(0,25,80,0.45)"></div>');
+if(show('sec')) html+=hand(S,`<div class="a" style="left:50%;bottom:50%;width:3px;height:152px;margin-left:-1.5px;border-radius:2px;background:${accent};box-shadow:0 0 6px ${accent}"></div><div class="a" style="left:50%;top:50%;width:5px;height:34px;margin-left:-2.5px;border-radius:3px;background:${accent}"></div>`);
+if(show('overlay')){
+  html+='<div class="a" style="left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff 0%,#b9ecff 35%,#1c6fd0 100%);box-shadow:0 2px 5px rgba(0,25,80,0.5)"></div>';
+  html+='<div class="a" style="left:50px;top:10px;width:260px;height:150px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,0.85) 0%,rgba(255,255,255,0.08) 100%)"></div>';
+}
+orb.innerHTML=html;
+</script>
+</body></html>
