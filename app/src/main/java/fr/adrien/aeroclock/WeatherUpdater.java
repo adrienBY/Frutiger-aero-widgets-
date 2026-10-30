@@ -13,6 +13,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import org.json.JSONObject;
@@ -148,17 +149,23 @@ final class WeatherUpdater {
 
         SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         Bitmap bmp;
+        String scene = "clear";
+        boolean day = true;
         if (sp.contains("code")) {
             int code = sp.getInt("code", 0);
-            boolean day = sp.getBoolean("day", true);
+            day = sp.getBoolean("day", true);
+            scene = WeatherCodes.scene(code);
             int t = Math.round(sp.getFloat("temp", 0));
             String temp = (t == 0 ? "0" : String.valueOf(t)) + "°";
-            bmp = AeroWeatherRenderer.render(ctx, WeatherCodes.scene(code), !day, temp,
+            bmp = AeroWeatherRenderer.render(ctx, scene, !day, temp,
                     WeatherCodes.label(code, day), sp.getString("place", "Ma position"), TILE_PX);
         } else {
-            bmp = AeroWeatherRenderer.render(ctx, "clear", false, "--°",
+            bmp = AeroWeatherRenderer.render(ctx, scene, false, "--°",
                     "Touchez pour activer", "Aero Météo", TILE_PX);
         }
+        int bgId = ctx.getResources().getIdentifier(
+                "wx_" + scene + (day ? "_d" : "_n"), "drawable", ctx.getPackageName());
+        boolean bubbles = scene.equals("clear") || scene.equals("partly") || scene.equals("cloudy");
 
         Intent tap = new Intent(ctx, TapRefreshActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -167,6 +174,9 @@ final class WeatherUpdater {
 
         for (int id : ids) {
             RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.widget_weather);
+            if (bgId != 0) v.setImageViewResource(R.id.weather_bg, bgId);
+            v.setViewVisibility(R.id.bubbles_day, bubbles && day ? View.VISIBLE : View.GONE);
+            v.setViewVisibility(R.id.bubbles_night, bubbles && !day ? View.VISIBLE : View.GONE);
             v.setImageViewBitmap(R.id.weather_image, bmp);
             v.setOnClickPendingIntent(R.id.weather_root, pi);
             mgr.updateAppWidget(id, v);

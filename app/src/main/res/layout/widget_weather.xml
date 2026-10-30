@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Layers: scene background, animated bubbles (day or night), then text + gloss.
+     An indeterminate-only ProgressBar keeps its drawable's aspect ratio and centres it,
+     like fitCenter, so the bubbles stay aligned with the images. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/weather_root"
     android:layout_width="match_parent"
@@ -6,12 +9,52 @@
     android:contentDescription="@string/weather_name">
 
     <ImageView
-        android:id="@+id/weather_image"
+        android:id="@+id/weather_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:importantForAccessibility="no"
         android:scaleType="fitCenter"
-        android:src="@drawable/wx_preview" />
+        android:src="@drawable/wx_clear_d" />
+
+    <ProgressBar
+        android:id="@+id/bubbles_day"
+        style="@android:style/Widget.ProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:importantForAccessibility="no"
+        android:indeterminate="true"
+        android:indeterminateDrawable="@drawable/wx_bubbles_day"
+        android:indeterminateOnly="true"
+        android:maxWidth="2000dp"
+        android:maxHeight="2000dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:visibility="visible" />
+
+    <ProgressBar
+        android:id="@+id/bubbles_night"
+        style="@android:style/Widget.ProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:importantForAccessibility="no"
+        android:indeterminate="true"
+        android:indeterminateDrawable="@drawable/wx_bubbles_night"
+        android:indeterminateOnly="true"
+        android:maxWidth="2000dp"
+        android:maxHeight="2000dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/weather_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter" />
 
 </FrameLayout>

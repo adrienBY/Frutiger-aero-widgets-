@@ -11,8 +11,8 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 
 /**
- * Draws the Aero Blue weather tile: a pre-rendered scene, then the text in Selawik,
- * then the glass highlight. Coordinates are in the 380-unit frame used by
+ * Draws the top layer of the Aero Blue weather tile: the text in Selawik, then the
+ * glass highlight. Coordinates are in the 380-unit frame used by
  * design/weather.html, so the phone output matches the design.
  */
 final class AeroWeatherRenderer {
@@ -49,8 +49,8 @@ final class AeroWeatherRenderer {
         Paint img = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         Rect dst = new Rect(0, 0, px, px);
 
-        drawRes(c, cv, "wx_" + scene + (night ? "_n" : "_d"), dst, img);
-
+        // The scene itself (wx_<scene>_<d|n>) and the animated bubbles are separate
+        // widget layers under this bitmap, which holds only the text and the gloss.
         boolean darkText = night || scene.equals("storm");
         boolean dimGloss = night || scene.equals("rain") || scene.equals("drizzle") || scene.equals("storm");
 

@@ -177,8 +177,9 @@ if(layer!=='gloss'){
   h+=hill();
   h+=leaves();
 
-  // surface details
-  if(['clear','partly','cloudy'].includes(cond)){
+  // surface details (on the phone the bubbles are animated: res/drawable/wx_bubbles_*.xml,
+  // so the bg layer leaves them out; previews still show them)
+  if(layer==='all' && ['clear','partly','cloudy'].includes(cond)){
     const a=night?0.55:1;
     h+=bubble(214,198,28,a)+bubble(256,226,16,a)+bubble(190,240,12,a)+bubble(286,186,10,a);
   }
