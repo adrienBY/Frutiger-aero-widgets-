@@ -1,11 +1,13 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
+<!-- Aqua Orb source. Frame is 380x380 so the orb (360 + bezel) fills the widget edge to edge.
+     ?layer=dial|hour|min|sec|overlay|bubbles  (&f=<frame>&n=<frames> for bubbles)
+     no layer = full composite (use h/m/s degrees for the hands) -->
 <style>
 html,body{margin:0;background:transparent}
-#f{width:440px;height:440px;position:relative}
+#f{width:380px;height:380px;position:relative}
 .a{position:absolute}
-.orb{left:40px;top:40px;width:360px;height:360px;border-radius:50%}
-.bub{position:absolute;border-radius:50%}
+.orb{left:10px;top:10px;width:360px;height:360px;border-radius:50%}
 </style></head>
 <body>
 <div id="f"><div class="a orb" id="orb"></div></div>
@@ -13,13 +15,15 @@ html,body{margin:0;background:transparent}
 const P=new URLSearchParams(location.search);
 const layer=P.get('layer')||'all';
 const H=+(P.get('h')??0), M=+(P.get('m')??0), S=+(P.get('s')??0);
+const F=+(P.get('f')??0), N=+(P.get('n')??30);
 const accent='#2ee6a8';
 const orb=document.getElementById('orb');
 const show=(n)=>layer==='all'||layer===n;
 let html='';
+
 if(show('dial')){
   orb.style.background='radial-gradient(circle at 50% 30%, #effcff 0%, #9fe2ff 30%, #2a98e6 66%, #0b4aa8 100%)';
-  orb.style.boxShadow='inset 0 -24px 44px rgba(0,40,130,0.55), inset 0 6px 14px rgba(255,255,255,0.6), 0 0 0 6px rgba(255,255,255,0.28), 0 0 0 7px rgba(255,255,255,0.6), 0 10px 22px rgba(0,25,90,0.45)';
+  orb.style.boxShadow='inset 0 -24px 44px rgba(0,40,130,0.55), inset 0 6px 14px rgba(255,255,255,0.6), 0 0 0 6px rgba(255,255,255,0.28), 0 0 0 7px rgba(255,255,255,0.6), 0 2px 4px rgba(0,25,90,0.35)';
   html+='<div class="a" style="left:70px;bottom:18px;width:220px;height:90px;border-radius:50%;background:radial-gradient(ellipse at 50% 100%, rgba(190,255,250,0.75) 0%, rgba(190,255,250,0) 70%)"></div>';
   for(let i=0;i<60;i++){
     const maj=i%5===0;
@@ -27,14 +31,30 @@ if(show('dial')){
       ?'<div class="a" style="left:50%;top:16px;width:7px;height:24px;margin-left:-3.5px;border-radius:4px;background:linear-gradient(180deg,#ffffff,#d8f3ff);box-shadow:0 1px 3px rgba(0,40,120,0.45)"></div>'
       :'<div class="a" style="left:50%;top:18px;width:2px;height:9px;margin-left:-1px;border-radius:1px;background:rgba(255,255,255,0.85)"></div>')+'</div>';
   }
-  const bubbles=[[96,214,30,1],[132,262,18,0],[78,268,14,0],[160,296,22,1],[200,290,14,0],[220,226,24,1],[236,262,34,1],[286,214,16,0],[62,190,12,0]];
-  for(const [l,t,s,rim] of bubbles){
+}
+
+// Rising bubbles: each loops seamlessly in N frames (big ones once per loop, small ones twice).
+if(show('bubbles')){
+  const t=F/N;
+  // [x center, size, speed (1|2 trips per loop), phase, wobble px]
+  const B=[[118,30,1,0.00,5],[150,18,2,0.10,3],[96,14,2,0.55,3],[178,22,1,0.35,4],[206,14,2,0.80,3],
+           [232,26,1,0.62,5],[258,34,1,0.18,6],[282,16,2,0.40,3],[78,12,2,0.25,2],[196,10,2,0.05,2],
+           [138,20,1,0.78,4],[244,12,2,0.92,2]];
+  const y0=312, y1=176;
+  html+='<div class="a" style="inset:14px;border-radius:50%;overflow:hidden">';
+  for(const [x,s,k,ph,w] of B){
+    const p=((t*k+ph)%1+1)%1;               // 0..1 along the trip
+    const y=y0-(y0-y1)*p;
+    const xx=x+w*Math.sin(p*Math.PI*2*(k===1?2:1));
+    const fade=Math.min(1,p/0.18)*Math.min(1,(1-p)/0.35);
     const bw=s>=16?1.5:1;
     let bg=`radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) ${s>=30?36:40}%)`;
-    if(rim) bg+=', radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 58%, rgba(200,255,250,0.4) 100%)';
-    html+=`<div class="bub" style="left:${l}px;top:${t}px;width:${s}px;height:${s}px;border:${bw}px solid rgba(255,255,255,0.72);background:${bg}"></div>`;
+    if(s>=20) bg+=', radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 58%, rgba(200,255,250,0.4) 100%)';
+    html+=`<div class="a" style="left:${xx-s/2-14}px;top:${y-s/2-14}px;width:${s}px;height:${s}px;border-radius:50%;opacity:${fade.toFixed(3)};border:${bw}px solid rgba(255,255,255,0.72);background:${bg}"></div>`;
   }
+  html+='</div>';
 }
+
 const hand=(deg,inner)=>`<div class="a" style="inset:0;transform:rotate(${deg}deg)">${inner}</div>`;
 if(show('hour')) html+=hand(H,'<div class="a" style="left:50%;bottom:50%;width:12px;height:100px;margin-left:-6px;margin-bottom:-14px;border-radius:6px;background:linear-gradient(90deg,#0a3c8c,#154fae 50%,#0a3c8c);box-shadow:0 3px 6px rgba(0,25,80,0.45)"></div>');
 if(show('min')) html+=hand(M,'<div class="a" style="left:50%;bottom:50%;width:9px;height:148px;margin-left:-4.5px;margin-bottom:-14px;border-radius:5px;background:linear-gradient(90deg,#0a3c8c,#1a5cc4 50%,#0a3c8c);box-shadow:0 3px 7px rgba(0,25,80,0.45)"></div>');
